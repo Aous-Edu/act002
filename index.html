@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة: مهمة إنقاذ المنهج</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rosePrimary: '#fb7185',
+                        roseDark: '#e11d48',
+                        slateText: '#475569',
+                        slateTitle: '#1e293b'
+                    },
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            /* تدرج لوني ناعم وأنثوي */
+            background: linear-gradient(135deg, #fdf4ff 0%, #fce7f3 50%, #f0fdfa 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #475569;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 40px -10px rgba(225, 29, 72, 0.1), 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #fb7185 0%, #f43f5e 100%);
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px -5px rgba(225, 29, 72, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px -5px rgba(225, 29, 72, 0.5);
+            filter: brightness(1.05);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-option {
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(251, 113, 133, 0.2);
+            color: #475569;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-option:hover {
+            background: #ffffff;
+            border-color: #fb7185;
+            transform: translateY(-3px) translateX(-5px);
+            box-shadow: 0 10px 15px -3px rgba(225, 29, 72, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+            color: #e11d48;
+        }
+
+        /* تأثيرات الاهتزاز عند الخطأ */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+        .shake-animation {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .screen.active {
+            display: flex;
+        }
+
+        /* تأثيرات الصورة المتحركة الجديدة */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating-anim {
+            animation: float 3.5s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(251, 113, 133, 0.4)); }
+            50% { filter: drop-shadow(0 0 25px rgba(251, 113, 133, 0.8)); }
+        }
+        .glowing-anim {
+            animation: glow 2.5s infinite;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4 md:p-8">
+
+    <div id="game-container" class="glass-panel w-full max-w-4xl rounded-3xl p-6 md:p-12 relative overflow-hidden min-h-[500px] flex flex-col justify-center">
+
+        <!-- Screen 00: Team Setup -->
+        <div id="screen-setup" class="screen active flex-col items-center text-center">
+            <div class="w-20 h-20 bg-rosePrimary rounded-full flex items-center justify-center mb-6 floating-anim glowing-anim">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-slateTitle mb-4">فريق التطوير</h1>
+            <p class="text-lg md:text-xl text-slateText mb-8 max-w-2xl leading-relaxed">
+                "كل واحدة منكن تمثل عضوًا في فريق تطوير المنهج. لن ننتقل إلى المرحلة التالية حتى نتفق على القرار. القرار هنا مسؤولية جماعية."
+            </p>
+            <button onclick="goToScreen('screen-01')" class="btn-primary text-xl font-bold py-3 px-12 rounded-full flex items-center gap-2">
+                فهمنا المهمة، فلنبدأ
+                <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+        </div>
+
+        <!-- Screen 01: Start -->
+        <div id="screen-01" class="screen flex-col items-center text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slateTitle mb-2 tracking-wide">مهمة إنقاذ <span class="text-rosePrimary">المنهج</span></h1>
+            <div class="h-1 w-24 bg-rosePrimary mx-auto mb-8 rounded-full"></div>
+            
+            <div class="bg-white/60 p-6 rounded-2xl mb-8 border border-white max-w-2xl shadow-sm">
+                <p class="text-xl md:text-2xl text-slateText mb-4">
+                    منهج دراسي لم يعد يواكب احتياجات المتعلمين والمجتمع...
+                </p>
+                <p class="text-xl md:text-2xl text-roseDark font-bold">
+                    مهمتكم: اتخاذ القرارات الصحيحة لتطويره.
+                </p>
+            </div>
+
+            <button onclick="goToScreen('screen-02')" class="btn-primary text-xl font-bold py-4 px-16 rounded-full flex items-center gap-3">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                ابدأن المهمة
+            </button>
+        </div>
+
+        <!-- Screen 02: Q1 -->
+        <div id="screen-02" class="screen flex-col w-full">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="bg-rose-100 text-roseDark font-bold px-3 py-1 rounded-lg text-sm border border-rose-200">المرحلة الأولى</span>
+                <h2 class="text-2xl md:text-3xl font-bold text-slateTitle">من أين نبدأ؟ 🚨</h2>
+            </div>
+            
+            <p class="text-lg text-slateText mb-6 bg-white/60 p-4 rounded-xl border border-white shadow-sm">
+                وصل إلى فريق التطوير تقرير يشير إلى أن المنهج الحالي لم يعد يواكب احتياجات المتعلمين والمجتمع. قرر الفريق البدء في تطوير المنهج.<br><br>
+                <span class="text-roseDark font-bold text-xl">ما الخطوة الأولى؟</span>
+            </p>
+
+            <div class="flex flex-col gap-3">
+                <button onclick="checkAnswer(this, 'wrong', 'screen-02')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">A — اختيار محتوى جديد للمنهج</button>
+                <button onclick="checkAnswer(this, 'correct', 'screen-03')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">B — الشعور بالحاجة إلى التطوير والتهيئة له</button>
+                <button onclick="checkAnswer(this, 'wrong', 'screen-02')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">C — إعداد أساليب التقويم</button>
+                <button onclick="checkAnswer(this, 'wrong', 'screen-02')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">D — إعداد الوسائل التعليمية</button>
+            </div>
+        </div>
+
+        <!-- Screen 03: Result 1 -->
+        <div id="screen-03" class="screen flex-col items-center text-center">
+            <div class="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mb-6 floating-anim border-2 border-emerald-400">
+                <svg class="w-12 h-12 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h2 class="text-3xl font-bold text-emerald-600 mb-4">قرار صحيح! ✓</h2>
+            <div class="bg-white/80 p-6 rounded-2xl mb-8 border border-emerald-100 max-w-2xl shadow-sm">
+                <p class="text-xl text-slateTitle mb-4">الخطوة الأولى: <span class="text-roseDark font-bold">الشعور بالحاجة إلى التطوير والتهيئة له.</span></p>
+                <p class="text-lg text-slateText">لكن اكتشاف الحاجة إلى التطوير لا يكفي...</p>
+            </div>
+            <button onclick="goToScreen('screen-04')" class="btn-primary text-xl font-bold py-3 px-12 rounded-full flex items-center gap-2">
+                المرحلة التالية
+                <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+        </div>
+
+        <!-- Screen 04: Q2 -->
+        <div id="screen-04" class="screen flex-col w-full">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="bg-rose-100 text-roseDark font-bold px-3 py-1 rounded-lg text-sm border border-rose-200">المرحلة الثانية</span>
+                <h2 class="text-2xl md:text-3xl font-bold text-slateTitle">ماذا نحتاج أن نعرف؟ 🔍</h2>
+            </div>
+            
+            <p class="text-lg text-slateText mb-6 bg-white/60 p-4 rounded-xl border border-white shadow-sm">
+                أصبح فريق التطوير مقتنعًا بالحاجة إلى تطوير المنهج. لكنه لا يريد اتخاذ قرارات عشوائية، ويحتاج أولًا إلى معرفة وضع المنهج الحالي وتحديد جوانب القوة والقصور.<br><br>
+                <span class="text-roseDark font-bold text-xl">ماذا يفعل الفريق الآن؟</span>
+            </p>
+
+            <div class="flex flex-col gap-3">
+                <button onclick="checkAnswer(this, 'correct', 'screen-05')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">A — دراسة الواقع الحالي وتقويمه</button>
+                <button onclick="checkAnswer(this, 'wrong', 'screen-04')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">B — اختيار الأنشطة وطرق التدريس</button>
+                <button onclick="checkAnswer(this, 'wrong', 'screen-04')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">C — إعداد الوسائل التعليمية</button>
+                <button onclick="checkAnswer(this, 'wrong', 'screen-04')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">D — تنفيذ المنهج المطور</button>
+            </div>
+        </div>
+
+        <!-- Screen 05: Result 2 & Q3 Combo -->
+        <div id="screen-05" class="screen flex-col w-full">
+            <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 p-4 rounded-xl mb-6 flex items-center gap-3 shadow-sm">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <span class="font-bold text-lg">ممتاز! تمت دراسة الواقع الحالي وتقويمه.</span>
+            </div>
+            
+            <div class="flex items-center gap-3 mb-6">
+                <span class="bg-rose-100 text-roseDark font-bold px-3 py-1 rounded-lg text-sm border border-rose-200">المرحلة الثالثة</span>
+            </div>
+
+            <p class="text-lg text-slateText mb-6 bg-white/60 p-4 rounded-xl border border-white shadow-sm">
+                الآن أصبح لدينا صورة أوضح عن الواقع...<br>
+                <span class="text-roseDark font-bold text-xl">ما القرار التالي؟</span>
+            </p>
+
+            <div class="flex flex-col gap-3">
+                <button onclick="checkAnswer(this, 'correct', 'screen-06')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">A — تحديد استراتيجية التطوير ووضع أهداف المنهج المطور</button>
+                <button onclick="checkAnswer(this, 'wrong', 'screen-05')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">B — تجريب المنهج المطور</button>
+                <button onclick="checkAnswer(this, 'wrong', 'screen-05')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">C — تنفيذ المنهج المطور وتعميمه</button>
+                <button onclick="checkAnswer(this, 'wrong', 'screen-05')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">D — إعداد الوسائل التعليمية</button>
+            </div>
+        </div>
+
+        <!-- Screen 06: Foundations 1 -->
+        <div id="screen-06" class="screen flex-col w-full">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="bg-rose-100 text-roseDark font-bold px-3 py-1 rounded-lg text-sm border border-rose-200">المرحلة الرابعة</span>
+                <h2 class="text-2xl md:text-3xl font-bold text-slateTitle">ما الأساس الذي يحكم القرار؟ 🧠</h2>
+            </div>
+            
+            <p class="text-lg text-slateText mb-6 bg-white/60 p-6 rounded-xl border border-white text-center shadow-sm">
+                أثناء التخطيط لتطوير المنهج، اقترح أحد أعضاء الفريق:<br>
+                <span class="block mt-4 text-xl font-bold text-slateTitle leading-relaxed">
+                    «لنبدأ بتطوير المنهج مباشرة، دون الحاجة إلى تحديد رؤية تربوية واضحة.»
+                </span>
+            </p>
+            
+            <h3 class="text-xl text-roseDark font-bold text-center mb-6">هل يتوافق هذا القرار مع أسس تطوير المنهج؟</h3>
+
+            <div class="flex gap-4 justify-center">
+                <button onclick="checkAnswer(this, 'wrong', 'screen-06')" class="btn-option w-32 py-4 rounded-xl text-2xl font-bold">نعم</button>
+                <button onclick="checkAnswer(this, 'correct-logic', 'screen-07')" class="btn-option w-32 py-4 rounded-xl text-2xl font-bold">لا</button>
+            </div>
+        </div>
+
+        <!-- Custom Result logic for Screen 6 -->
+        <div id="screen-06-result" class="screen flex-col items-center text-center">
+             <div class="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mb-6 border-2 border-rose-400">
+                <svg class="w-12 h-12 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </div>
+            <h2 class="text-4xl font-bold text-rose-600 mb-6">إجابة صحيحة: لا ❌</h2>
+            <div class="bg-white/80 p-6 rounded-2xl mb-8 border border-white max-w-2xl shadow-sm">
+                <p class="text-2xl text-roseDark font-bold leading-relaxed">
+                    وجود فلسفة تربوية واضحة من الأسس التي توجه عملية التطوير.
+                </p>
+            </div>
+            <button onclick="goToScreen('screen-07')" class="btn-primary text-xl font-bold py-3 px-12 rounded-full flex items-center gap-2">
+                المرحلة التالية
+                <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+        </div>
+
+        <!-- Screen 07: Collaborative -->
+        <div id="screen-07" class="screen flex-col w-full">
+            <div class="flex items-center gap-3 mb-6">
+                <h2 class="text-2xl md:text-3xl font-bold text-slateTitle">من يشارك في تطوير المنهج؟ 🤝</h2>
+            </div>
+            
+            <p class="text-lg text-slateText mb-6 bg-white/60 p-4 rounded-xl border border-white shadow-sm">
+                قرر فريق التطوير العمل بشكل منفرد، دون إشراك الأطراف المرتبطة بالعملية التعليمية.<br><br>
+                <span class="text-roseDark font-bold text-xl">أي أساس من أسس تطوير المنهج يفتقده هذا القرار؟</span>
+            </p>
+
+            <div class="flex flex-col gap-3">
+                <button onclick="checkAnswer(this, 'wrong', 'screen-07')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">A — الاستمرارية</button>
+                <button onclick="checkAnswer(this, 'correct-logic2', 'screen-08')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">B — التعاونية</button>
+                <button onclick="checkAnswer(this, 'wrong', 'screen-07')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">C — العلمية والابتعاد عن العشوائية</button>
+                <button onclick="checkAnswer(this, 'wrong', 'screen-07')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">D — التكاملية والشمولية</button>
+            </div>
+        </div>
+
+        <!-- Custom Result logic for Screen 7 -->
+        <div id="screen-07-result" class="screen flex-col items-center text-center">
+            <div class="w-24 h-24 bg-pink-50 rounded-full flex items-center justify-center mb-6 floating-anim border-2 border-pink-400">
+                <svg class="w-12 h-12 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            </div>
+            <h2 class="text-3xl font-bold text-pink-600 mb-4">بالضبط! التعاونية</h2>
+            <div class="bg-white/80 p-6 rounded-2xl mb-8 border border-white max-w-2xl shadow-sm">
+                <p class="text-2xl text-slateTitle font-bold leading-relaxed">
+                    تطوير المنهج مسؤولية مشتركة.
+                </p>
+            </div>
+            <button onclick="goToScreen('screen-08')" class="btn-primary text-xl font-bold py-3 px-12 rounded-full flex items-center gap-2">
+                المرحلة التالية
+                <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+        </div>
+
+        <!-- Screen 08: Decision Under Pressure -->
+        <div id="screen-08" class="screen flex-col w-full">
+            <div class="flex items-center gap-3 mb-6">
+                <h2 class="text-2xl md:text-3xl font-bold text-amber-500">قرار سريع! ⚡</h2>
+            </div>
+            
+            <p class="text-lg text-slateText mb-6 bg-white/60 p-4 rounded-xl border border-white border-r-4 border-r-amber-400 shadow-sm">
+                أصبح المنهج المطور جاهزًا، والفريق يريد تعميمه مباشرة على جميع المدارس.<br><br>
+                <span class="text-amber-600 font-bold text-xl">ما الإجراء الذي ينبغي القيام به قبل التعميم؟</span>
+            </p>
+
+            <div class="flex flex-col gap-3">
+                <button onclick="checkAnswer(this, 'correct-logic3', 'screen-11')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">A — تجريب المنهج المطور وتقويم نتائجه وإجراء التعديلات اللازمة</button>
+                <button onclick="checkAnswer(this, 'wrong', 'screen-08')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">B — تنفيذ المنهج المطور ومتابعته وتقويمه</button>
+                <button onclick="checkAnswer(this, 'wrong', 'screen-08')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">C — إعداد الوسائل التعليمية</button>
+                <button onclick="checkAnswer(this, 'wrong', 'screen-08')" class="btn-option text-right p-4 rounded-xl text-lg font-bold">D — اختيار الأنشطة وطرق التدريس المناسبة</button>
+            </div>
+        </div>
+
+         <!-- Custom Result logic for Screen 8 -->
+         <div id="screen-08-result" class="screen flex-col items-center text-center">
+            <h2 class="text-4xl font-bold text-emerald-500 mb-6">قرار موفق! ✨</h2>
+            <div class="bg-white/80 p-6 rounded-2xl mb-8 border border-white max-w-2xl shadow-sm">
+                <p class="text-xl text-slateTitle leading-relaxed">
+                    التجريب قبل التعميم يساعد على التحقق من فاعلية المنهج وإجراء التحسينات اللازمة.
+                </p>
+                <p class="text-sm text-rosePrimary font-bold mt-4">
+                    (هذه الخطوة تربط بين أسس التطوير وبين خطواته التنفيذية)
+                </p>
+            </div>
+            <button onclick="goToScreen('screen-11')" class="btn-primary text-xl font-bold py-3 px-12 rounded-full flex items-center gap-2">
+                إنهاء المهمة
+                <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+        </div>
+
+        <!-- Screen 11: End -->
+        <div id="screen-11" class="screen flex-col items-center text-center py-10">
+            <div class="w-32 h-32 rounded-full flex items-center justify-center mb-6 relative">
+                <div class="absolute inset-0 border-4 border-rosePrimary rounded-full animate-ping opacity-20"></div>
+                <div class="absolute inset-0 border-4 border-rosePrimary rounded-full"></div>
+                <svg class="w-16 h-16 text-rosePrimary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold text-slateTitle mb-6">تمت المهمة بنجاح</h1>
+            <p class="text-xl text-slateText mb-10 max-w-2xl leading-relaxed">
+                طوّرتم مسارًا قائمًا على <span class="text-roseDark font-bold">أسس واضحة</span>، و<span class="text-roseDark font-bold">خطوات منظمة</span> لتطوير المنهج بفعالية.
+            </p>
+            <button class="btn-primary text-xl font-bold py-4 px-12 rounded-full flex items-center gap-3">
+                العودة إلى العرض
+                <svg class="w-6 h-6 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            </button>
+        </div>
+
+        <!-- Wrong Modal Overlay -->
+        <div id="modal-wrong" class="absolute inset-0 bg-white/90 z-50 hidden flex-col items-center justify-center backdrop-blur-md">
+            <div class="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mb-6 floating-anim border-2 border-rose-400">
+                <svg class="w-12 h-12 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <h2 class="text-4xl font-bold text-slateTitle mb-4">ليس هذا المسار...</h2>
+            <p class="text-xl text-slateText mb-8">فريق التطوير ينتظر قراراً أفضل. فكروا مرة أخرى!</p>
+            <button onclick="hideWrongModal()" class="bg-transparent border-2 border-rosePrimary text-rosePrimary hover:bg-rosePrimary hover:text-white transition-colors text-xl font-bold py-3 px-12 rounded-full flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+                العودة للسؤال
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        let currentReturnScreen = '';
+
+        // Core Navigation
+        function goToScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Answer Checking Logic
+        function checkAnswer(btnElement, status, nextScreenId) {
+            if (status === 'wrong') {
+                // إضافة تأثير الاهتزاز وتغيير لون الزر للون الخاطئ مؤقتاً
+                btnElement.classList.add('shake-animation', 'bg-rose-50', 'border-rose-300', 'text-rose-600');
+                
+                setTimeout(() => {
+                    btnElement.classList.remove('shake-animation', 'bg-rose-50', 'border-rose-300', 'text-rose-600');
+                }, 400);
+
+                currentReturnScreen = btnElement.closest('.screen').id;
+                
+                setTimeout(() => {
+                    document.getElementById('modal-wrong').classList.remove('hidden');
+                    document.getElementById('modal-wrong').classList.add('flex');
+                }, 500);
+            } 
+            else if (status.startsWith('correct-logic')) {
+                // تأثير الإجابة الصحيحة
+                btnElement.classList.add('bg-emerald-50', 'border-emerald-400', 'text-emerald-700');
+                
+                setTimeout(() => {
+                    if(status === 'correct-logic') goToScreen('screen-06-result');
+                    if(status === 'correct-logic2') goToScreen('screen-07-result');
+                    if(status === 'correct-logic3') goToScreen('screen-08-result');
+                }, 400);
+            }
+            else {
+                // تأثير الإجابة الصحيحة العادية
+                btnElement.classList.add('bg-emerald-50', 'border-emerald-400', 'text-emerald-700');
+                setTimeout(() => {
+                    goToScreen(nextScreenId);
+                }, 400);
+            }
+        }
+
+        function hideWrongModal() {
+            document.getElementById('modal-wrong').classList.add('hidden');
+            document.getElementById('modal-wrong').classList.remove('flex');
+        }
+
+    </script>
+</body>
+</html>
